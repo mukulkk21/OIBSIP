@@ -1,0 +1,168 @@
+# Importing necessary libraries
+import pandas as pd
+import numpy as np 
+from matplotlib import pyplot as plt
+import seaborn as sns 
+
+# Reading two datasets
+df1 = pd.read_csv('Unemployment in India.csv')
+df2 = pd.read_csv('Unemployment_Rate_upto_11_2020.csv')
+
+# Displaying the first 5 rows of the first dataset
+df1.head(5)
+
+# Checking for missing values in the first dataset and printing the results
+print("First DataFrame\n", df1.isnull().sum(), "\n")
+
+# Checking for missing values in the second dataset and printing the results
+print("\nSecond DataFrame\n\n", df2.isnull().sum())
+
+# Dropping rows with missing values in the first dataset
+df1 = df1.dropna()
+
+# Checking for missing values in the first dataset after dropping rows and printing the results
+print(df1.isnull().sum())
+
+
+# Visualizing the area-wise average unemployment rate for the year 2019 using a pie chart
+average_of_regions1 = df1.groupby("Area")["Estimated Unemployment Rate"].mean()
+average_of_regions1.plot(kind='pie', autopct='%1.1f%%')
+plt.axis('equal')
+plt.title('Area-wise Average Unemployment Rate of year 2019')
+plt.show()
+
+
+# Visualizing the area-wise average unemployment rate for the year 2019 using a bar chart
+average_of_regions1 = df1.groupby("Area")["Estimated Unemployment Rate"].mean()
+
+# Create the bar chart
+plt.bar(average_of_regions1.index, average_of_regions1.values, width=0.8, color=["r", "b"])
+
+# Add percentage labels on the bars
+for index, value in enumerate(average_of_regions1.values):
+    plt.text(index, value, f"{value:.1f}%", ha='center', va='bottom')
+
+# Set the title and labels
+plt.title('Area-wise Average Unemployment Rate of year 2019')
+plt.xlabel('Area')
+plt.ylabel('Average Unemployment Rate')
+
+# Show the plot
+plt.tight_layout()  # To adjust spacing and avoid label overlapping (optional)
+plt.xticks(rotation=45)  # Rotate x-axis labels for better readability (optional)
+plt.show()
+
+
+# Visualizing the region-wise average unemployment rate for the year 2020 using a pie chart
+average_of_regions2 = df2.groupby("Region")["Estimated Unemployment Rate"].mean()
+average_of_regions2.plot(kind='pie', autopct='%1.1f%%')
+plt.axis('equal')
+plt.title('Region-wise Average Unemployment Rate of year 2020')
+plt.show()
+
+
+# Extracting the month from the 'Date' column and creating a new 'Month' column with month names in the first dataset
+df1['Month'] = df1['Date'].dt.strftime('%B')
+
+# Finding the month with the highest estimated unemployment rate for each state in the first dataset
+highest_month = df1.groupby('State')['Estimated Unemployment Rate'].idxmax()
+highest_month_df = df1.loc[highest_month, ['State', 'Month', 'Estimated Unemployment Rate']].copy()
+
+# Sorting the DataFrame by the highest unemployment rate in ascending order
+highest_month_df.sort_values('Estimated Unemployment Rate', inplace=True)
+
+# Creating a bar graph to visualize the month with the highest estimated unemployment rate for each state in the year 2019
+plt.figure(figsize=(18, 15))
+plt.bar(highest_month_df['State'], highest_month_df['Estimated Unemployment Rate'], color='skyblue')
+
+# Adding text labels above each bar showing the first four letters of the month and the corresponding unemployment rate
+for x, y, month in zip(highest_month_df['State'], highest_month_df['Estimated Unemployment Rate'], highest_month_df['Month']):
+    month_abbreviated = month[:4]  # Getting the first four letters of the month
+    plt.text(x, y, f'{month_abbreviated}\n{y:.2f}', ha='center', va='bottom', fontsize=12)
+
+# Setting axis labels, title, and rotating x-axis labels for better readability
+plt.xlabel('State', fontsize=20)
+plt.ylabel('Estimated Unemployment Rate', fontsize=20)
+plt.title('Month with Highest Estimated Unemployment Rate for Each State in year 2019', fontsize=20)
+plt.xticks(rotation=65, fontsize=12)
+
+# Adjusting the spacing between the subplots to avoid label overlapping
+plt.subplots_adjust(bottom=0.3)
+
+# Displaying the plot
+plt.show()
+
+
+# Extracting the month from the 'Date' column and creating a new 'Month' column with month names in the second dataset
+df2['Date'] = pd.to_datetime(df2['Date'])
+df2['Month'] = df2['Date'].dt.strftime('%B')
+
+# Finding the month with the highest estimated unemployment rate for each state in the second dataset
+highest_month2 = df2.groupby('State')['Estimated Unemployment Rate'].idxmax()
+highest_month_df2 = df2.loc[highest_month2, ['State', 'Month', 'Estimated Unemployment Rate']].copy()
+
+# Sorting the DataFrame by the highest unemployment rate in ascending order
+highest_month_df2.sort_values('Estimated Unemployment Rate', inplace=True)
+
+# Creating a bar graph to visualize the month with the highest estimated unemployment rate for each state in the year 2020
+plt.figure(figsize=(18, 15))
+plt.bar(highest_month_df2['State'], highest_month_df2['Estimated Unemployment Rate'], color='pink')
+
+# Adding text labels above each bar showing the month and the corresponding unemployment rate
+for x, y, month in zip(highest_month_df2['State'], highest_month_df2['Estimated Unemployment Rate'], highest_month_df2['Month']):
+    month_abbreviated = month[:4]  # Getting the first four letters of the month
+    plt.text(x, y, f'{month_abbreviated}\n{y:.2f}', ha='center', va='bottom', fontsize=12)
+
+# Setting axis labels, title, and rotating x-axis labels for better readability
+plt.xlabel('State', fontsize=20)
+plt.ylabel('Estimated Unemployment Rate', fontsize=20)
+plt.title('Month with Highest Unemployment Rate for Each State in year 2020', fontsize=20)
+plt.xticks(rotation=65, fontsize=12)
+
+# Adjusting the spacing between the subplots to avoid label overlapping
+plt.subplots_adjust(bottom=0.3)
+
+# Displaying the plot
+plt.show()
+
+
+# Concatenating the two datasets
+combined_data = pd.concat([df1, df2])
+
+# Defining the order of the months
+month_order = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+# Converting the 'Month' column to categorical data type with the custom sort order
+combined_data['Month'] = pd.Categorical(combined_data['Month'], categories=month_order, ordered=True)
+
+# Calculating the mean Estimated Unemployment Rate for each month and state
+monthly_data = combined_data.groupby(['Month', 'State'])['Estimated Unemployment Rate'].mean().reset_index()
+
+# Getting a list of unique states
+states = combined_data['State'].unique()
+
+# Creating separate line plot graphs for each state to show the trend of unemployment rate over months (2019-2020)
+for state in states:
+    state_data = monthly_data[monthly_data['State'] == state]
+    plt.plot(state_data['Month'], state_data['Estimated Unemployment Rate'], label=state)
+
+    # Setting the x-axis label as 'Month'
+    plt.xlabel('Month')
+
+    # Setting the y-axis label as 'Estimated Unemployment Rate'
+    plt.ylabel('Estimated Unemployment Rate')
+
+    # Setting the title of the graph
+    plt.title('Estimated Unemployment Rate for Each State (2019-2020)')
+
+    # Adding a legend to differentiate the states
+    plt.legend()
+
+    # Rotating the x-axis labels for better visibility
+    plt.xticks(rotation=65)
+
+    # Displaying the line plot
+    plt.show()
+
+# Printing additional analysis and observations based on the plotted data
+print("Based on the data shown above, we can observe that the Unemployment rate tends to be higher in the months of April and May, and lower in June and July.")
