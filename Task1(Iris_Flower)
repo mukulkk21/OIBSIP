@@ -1,0 +1,366 @@
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Set the matplotlib backend to display plots inline in Jupyter Notebook
+%matplotlib inline
+
+# Load the Iris dataset
+df = pd.read_csv('Iris.csv')
+
+# Display basic information about the dataset
+print(df.head(10))
+print(df.shape)
+print(df.describe())
+print(df.isnull().sum())
+print(df.info())
+
+# Visualize Sepal Dimensions using scatter plots
+plt.title('Scatter Plot of Sepal Dimensions')
+sns.scatterplot(x='SepalLengthCm', y='SepalWidthCm', hue='Species', data=df)
+plt.show()
+
+# Visualize the distribution of each numerical column against the 'Species' column using box plots
+sns.boxplot(data=df, x='SepalLengthCm', y='Species')
+plt.show()
+sns.boxplot(data=df, x='SepalWidthCm', y='Species')
+plt.show()
+sns.boxplot(data=df, x='PetalLengthCm', y='Species')
+plt.show()
+sns.boxplot(data=df, x='PetalWidthCm', y='Species')
+plt.show()
+
+# Visualize the distribution of Sepal Length for each class using violin plots
+g = sns.violinplot(y='Species', x='SepalLengthCm', data=df, inner='quartile')
+plt.show()
+
+# Visualize the distribution of Sepal Width for each class using violin plots
+g = sns.violinplot(y='Species', x='SepalWidthCm', data=df, inner='quartile')
+plt.show()
+
+# Visualize the distribution of Petal Length for each class using violin plots
+g = sns.violinplot(y='Species', x='PetalLengthCm', data=df, inner='quartile')
+plt.show()
+
+# Visualize the distribution of Petal Width for each class using violin plots
+g = sns.violinplot(y='Species', x='PetalWidthCm', data=df, inner='quartile')
+plt.show()
+
+# Visualize the relationship between Sepal Length and Sepal Width for each class using scatter plots
+sns.scatterplot(data=df, x='SepalLengthCm', y='SepalWidthCm', hue='Species', style='Species')
+plt.title('Iris Sepals')
+plt.show()
+
+# Visualize the relationship between Petal Length and Petal Width for each class using scatter plots
+sns.scatterplot(data=df, x='PetalLengthCm', y='PetalWidthCm', hue='Species', style='Species')
+plt.title('Iris Petals')
+plt.show()
+
+# Visualize the relationships between all numerical columns with respect to the 'Species' using pair plots
+sns.pairplot(df, hue='Species', markers='*')
+plt.show()
+
+# Display class distribution as a pie chart
+print("\nClass distribution:")
+print(df['Species'].value_counts())
+
+plt.figure(figsize=(20, 10))
+df['Species'].value_counts().plot(kind='pie', autopct='%.2f%%')
+plt.title('Percentage Distribution of Class')
+plt.legend(df['Species'].value_counts().index)
+plt.xlabel('Species')
+plt.ylabel(None)
+plt.show()
+
+
+# Encode the 'Species' column using LabelEncoder
+from sklearn.preprocessing import LabelEncoder
+le = LabelEncoder()
+df['Species'] = le.fit_transform(df['Species'])
+
+# Separate features and target variable
+x = df.drop(['Species'], axis=1)
+y = df['Species']
+
+# Split the data into training and testing sets
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=10)
+
+# Model Training and Evaluation
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Support Vector Machine (SVM) classifier
+from sklearn.svm import SVC
+svm_classifier = SVC()
+svm_classifier.fit(x_train, y_train)
+y_pred_svm = svm_classifier.predict(x_test)
+print("\nSVM Classifier:")
+print(classification_report(y_test, y_pred_svm))
+print(confusion_matrix(y_test, y_pred_svm))
+print('Accuracy:', accuracy_score(y_test, y_pred_svm))
+
+# Gaussian Naive Bayes classifier
+from sklearn.naive_bayes import GaussianNB
+gnb_classifier = GaussianNB()
+gnb_classifier.fit(x_train, y_train)
+y_pred_gnb = gnb_classifier.predict(x_test)
+print("\nGaussian Naive Bayes Classifier:")
+print(classification_report(y_test, y_pred_gnb))
+print(confusion_matrix(y_test, y_pred_gnb))
+print('Accuracy:', accuracy_score(y_test, y_pred_gnb))
+
+# Multinomial Naive Bayes classifier
+from sklearn.naive_bayes import MultinomialNB
+mnb_classifier = MultinomialNB()
+mnb_classifier.fit(x_train, y_train)
+y_pred_mnb = mnb_classifier.predict(x_test)
+print("\nMultinomial Naive Bayes Classifier:")
+print(classification_report(y_test, y_pred_mnb))
+print(confusion_matrix(y_test, y_pred_mnb))
+print('Accuracy:', accuracy_score(y_test, y_pred_mnb))
+
+# Bernoulli Naive Bayes classifier
+from sklearn.naive_bayes import BernoulliNB
+bnb_classifier = BernoulliNB()
+bnb_classifier.fit(x_train, y_train)
+y_pred_bnb = bnb_classifier.predict(x_test)
+print("\nBernoulli Naive Bayes Classifier:")
+print(classification_report(y_test, y_pred_bnb))
+print(confusion_matrix(y_test, y_pred_bnb))
+print('Accuracy:', accuracy_score(y_test, y_pred_bnb))
+
+# Complement Naive Bayes classifier
+from sklearn.naive_bayes import ComplementNB
+cnb_classifier = ComplementNB()
+cnb_classifier.fit(x_train, y_train)
+y_pred_cnb = cnb_classifier.predict(x_test)
+print("\nComplement Naive Bayes Classifier:")
+print(classification_report(y_test, y_pred_cnb))
+print(confusion_matrix(y_test, y_pred_cnb))
+print('Accuracy:', accuracy_score(y_test, y_pred_cnb))
+
+for clf in classifiers:
+    clf.fit(x_train, x_train['sepal_length'])
+    name = clf.__class__.__name__
+
+    train_predictions = clf.predict(x_test)
+    acc = accuracy_score(x_test['sepal_length'], train_predictions)
+
+    log_entry = pd.DataFrame([[name, acc * 100, 11]], columns=log_cols)
+    log = log.append(log_entry)
+
+# Visualize the accuracy of different classifiers using a bar plot
+sns.set_color_codes("muted")
+sns.barplot(x='Accuracy', y='Classifier', data=log, color="b")
+plt.xlabel('Accuracy %')
+plt.title('Classifier Accuracy')
+plt.show()
+In this updated code, the 'class' column has been removed from the DataFrame, and the data is visualized and analyzed without considering the 'class' column. Also, during model training and evaluation, only the 'sepal_length' column is used as the target variable instead of the 'class' column for simplicity.
+
+
+
+
+User
+use a pie chart 
+ChatGPT
+Apologies for the oversight. You're right; let's use a pie chart to show the distribution of classes. Since the 'class' column has been removed, we'll consider the distribution of the 'sepal_length' values instead. Here's the updated code with a pie chart:
+
+python
+Copy code
+# Importing necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_palette('pastel')
+
+# Suppressing warnings
+import warnings
+warnings.filterwarnings('ignore')
+
+# Load the data into a DataFrame
+columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
+df = pd.read_csv('/content/iris.data', names=columns)
+
+# Display basic information about the dataset
+print("Summary statistics of the dataset:")
+print(df.describe())
+
+print("\nFirst 5 rows of the dataset:")
+print(df.head())
+
+print("\nLast 5 rows of the dataset:")
+print(df.tail())
+
+# Check the shape of the dataset (number of rows and columns)
+print("\nShape of the dataset:", df.shape)
+
+# Get the column names of the dataset
+print("\nColumn names:", df.columns)
+
+# Data Preprocessing
+print("\nData types:")
+print(df.dtypes)
+
+# Check for duplicated rows in the dataset
+print("\nNumber of duplicated rows:", df.duplicated().sum())
+
+# Display the duplicated rows
+print("\nDuplicated rows:")
+print(df[df.duplicated()])
+
+# Drop duplicated rows
+df = df.drop_duplicates()
+
+# Check if there are any more duplicated rows after dropping
+print("\nAny duplicated rows after dropping:", df.duplicated().any())
+
+# Reset the index after dropping rows
+df.reset_index(drop=True, inplace=True)
+
+# Check for missing values in the dataset
+print("\nMissing values:")
+print(df.isna().sum())
+
+# Display information about the dataset
+print("\nInformation about the dataset:")
+print(df.info())
+
+# Data Visualization
+# Plot histograms for each column in the dataset
+df.hist(figsize=(10, 10))
+plt.show()
+
+# Show boxplots for each numerical column
+sns.boxplot(data=df, x='sepal_length')
+plt.show()
+sns.boxplot(data=df, x='sepal_width')
+plt.show()
+sns.boxplot(data=df, x='petal_length')
+plt.show()
+sns.boxplot(data=df, x='petal_width')
+plt.show()
+
+# Show violin plots to visualize the distribution of sepal_length for each class
+g = sns.violinplot(x='sepal_length', data=df, inner='quartile')
+plt.show()
+g = sns.violinplot(x='sepal_width', data=df, inner='quartile')
+plt.show()
+g = sns.violinplot(x='petal_length', data=df, inner='quartile')
+plt.show()
+g = sns.violinplot(x='petal_width', data=df, inner='quartile')
+plt.show()
+
+# Show scatter plots to visualize the relationship between sepal_length and sepal_width
+sns.scatterplot(data=df, x='sepal_length', y='sepal_width')
+plt.title('Iris Sepals')
+plt.show()
+
+# Show scatter plots to visualize the relationship between petal_length and petal_width
+sns.scatterplot(data=df, x='petal_length', y='petal_width')
+plt.title('Iris Petals')
+plt.show()
+
+# Show pair plot to visualize the relationships between all numerical columns
+sns.pairplot(df)
+
+# Show correlation plot to visualize the correlation between numerical columns
+corr = df.corr()
+sns.heatmap(corr, annot=True, cmap='hot')
+plt.show()
+
+# Data Encoding
+# %matplotlib inline
+sns.set_palette('Set1')
+
+# Separate features
+x = df.drop(['class'], axis=1)
+
+# Split the data into training and testing sets
+from sklearn.model_selection import train_test_split
+x_train, x_test = train_test_split(x, test_size=0.2, random_state=10)
+
+# Model Training and Evaluation
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+
+# Support Vector Machine (SVM) classifier
+from sklearn.svm import SVC
+classifier = SVC()
+classifier.fit(x_train, x_train['sepal_length'])
+y_pred = classifier.predict(x_test)
+print("\nSVM Classifier:")
+print(classification_report(x_test['sepal_length'], y_pred))
+print(confusion_matrix(x_test['sepal_length'], y_pred))
+print('Accuracy:', accuracy_score(x_test['sepal_length'], y_pred))
+
+# Gaussian Naive Bayes classifier
+from sklearn.naive_bayes import GaussianNB
+classifier = GaussianNB()
+classifier.fit(x_train, x_train['sepal_length'])
+y_pred = classifier.predict(x_test)
+print("\nGaussian Naive Bayes Classifier:")
+print(classification_report(x_test['sepal_length'], y_pred))
+print(confusion_matrix(x_test['sepal_length'], y_pred))
+print('Accuracy:', accuracy_score(x_test['sepal_length'], y_pred))
+
+# Multinomial Naive Bayes classifier
+from sklearn.naive_bayes import MultinomialNB
+classifier = MultinomialNB()
+classifier.fit(x_train, x_train['sepal_length'])
+y_pred = classifier.predict(x_test)
+print("\nMultinomial Naive Bayes Classifier:")
+print(classification_report(x_test['sepal_length'], y_pred))
+print(confusion_matrix(x_test['sepal_length'], y_pred))
+print('Accuracy:', accuracy_score(x_test['sepal_length'], y_pred))
+
+# Bernoulli Naive Bayes classifier
+from sklearn.naive_bayes import BernoulliNB
+classifier = BernoulliNB()
+classifier.fit(x_train, x_train['sepal_length'])
+y_pred = classifier.predict(x_test)
+print("\nBernoulli Naive Bayes Classifier:")
+print(classification_report(x_test['sepal_length'], y_pred))
+print(confusion_matrix(x_test['sepal_length'], y_pred))
+print('Accuracy:', accuracy_score(x_test['sepal_length'], y_pred))
+
+# Complement Naive Bayes classifier
+from sklearn.naive_bayes import ComplementNB
+classifier = ComplementNB()
+classifier.fit(x_train, x_train['sepal_length'])
+y_pred = classifier.predict(x_test)
+print("\nComplement Naive Bayes Classifier:")
+print(classification_report(x_test['sepal_length'], y_pred))
+print(confusion_matrix(x_test['sepal_length'], y_pred))
+print('Accuracy:', accuracy_score(x_test['sepal_length'], y_pred))
+
+# Compare accuracy of different classifiers using bar plot
+classifiers = [SVC(), GaussianNB(), MultinomialNB(), BernoulliNB(), ComplementNB()]
+log_cols = ["Classifier", "Accuracy", "Log Loss"]
+log = pd.DataFrame(columns=log_cols)
+
+for clf in classifiers:
+    clf.fit(x_train, x_train['sepal_length'])
+    name = clf.__class__.__name__
+
+    train_predictions = clf.predict(x_test)
+    acc = accuracy_score(x_test['sepal_length'], train_predictions)
+
+    log_entry = pd.DataFrame([[name, acc * 100, 11]], columns=log_cols)
+    log = log.append(log_entry)
+
+# Visualize the accuracy of different classifiers using a bar plot
+sns.set_color_codes("muted")
+sns.barplot(x='Accuracy', y='Classifier', data=log, color="b")
+plt.xlabel('Accuracy %')
+plt.title('Classifier Accuracy')
+plt.show()
+
+# Pie chart to show the distribution of 'sepal_length'
+plt.figure(figsize=(8, 8))
+sepal_lengths = df['sepal_length']
+unique_values = sepal_lengths.unique()
+value_counts = sepal_lengths.value_counts()
+plt.pie(value_counts, labels=unique_values, autopct='%.2f%%', startangle=90)
+plt.title('Distribution of Sepal Length')
+plt.show()
